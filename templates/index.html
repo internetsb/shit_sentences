@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神人语录</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✨ 神人语录 ✨</h1>
+            <p>每一句话都是极致的发癫</p>
+        </header>
+
+        <main>
+            <div class="sentence-card">
+                <div id="sentence-content" class="sentence-content">
+                    点击按钮获取一句神人语录...
+                </div>
+                <div id="sentence-author" class="sentence-author"></div>
+                <div class="actions">
+                    <button id="get-sentence" class="btn-primary">获取随机语句</button>
+                    <button id="copy-btn" class="btn-secondary">复制到剪贴板</button>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <span id="total-count">-</span>
+                    <small>总语句数</small>
+                </div>
+                <div class="stat-item">
+                    <span id="today-count">-</span>
+                    <small>今日访问</small>
+                </div>
+                <div class="stat-item">
+                    <span id="pending-count">-</span>
+                    <small>待审核</small>
+                </div>
+                <div class="stat-item">
+                    <span id="api-count">-</span>
+                    <small>API调用</small>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="nav-links">
+                <a href="{{ url_for('submit_sentence') }}" class="nav-link">📝 提交语句</a>
+                <a href="{{ url_for('leaderboard') }}" class="nav-link">🏆 排行榜</a>
+                <a href="{{ url_for('api_docs') }}" class="nav-link">🔗 API文档</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

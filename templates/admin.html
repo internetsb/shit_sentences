@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔧 管理后台</h1>
+            <p>语句审核与管理</p>
+        </header>
+
+        <main>
+            <!-- 登录界面 -->
+            <div id="login-section" class="login-section">
+                <h3>管理员登录</h3>
+                <form id="login-form">
+                    <div class="form-group">
+                        <input type="password" id="password" placeholder="请输入管理员密码" required>
+                    </div>
+                    <button type="submit" class="btn-primary">登录</button>
+                </form>
+            </div>
+
+            <!-- 管理界面 -->
+            <div id="admin-section" class="admin-section" style="display: none;">
+                <div class="admin-header">
+                    <div class="filter-tabs">
+                        <button class="filter-btn active" data-status="all">全部</button>
+                        <button class="filter-btn" data-status="pending">待审核</button>
+                        <button class="filter-btn" data-status="approved">已通过</button>
+                        <button class="filter-btn" data-status="rejected">已拒绝</button>
+                    </div>
+
+                    <div class="admin-actions">
+                        <button id="add-sentence-btn" class="btn-primary">添加语句</button>
+                        <button id="approve-all-btn" class="btn-primary" style="background: #28a745;">一键通过</button>
+                        <button id="refresh-btn" class="btn-secondary">刷新</button>
+                        <button id="logout-btn" class="btn-secondary">退出登录</button>
+                    </div>
+                </div>
+
+                <div id="sentences-list" class="sentences-list">
+                    <div class="sentence-item">请先登录查看语句列表</div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <a href="{{ url_for('index') }}" class="nav-link">← 返回首页</a>
+        </footer>
+    </div>
+
+    <!-- 添加语句模态框 -->
+    <div id="add-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>添加新语句</h3>
+            <textarea id="new-sentence-content" rows="4" placeholder="请输入语句内容..."></textarea>
+            <div class="modal-actions">
+                <button id="confirm-add" class="btn-primary">确认添加</button>
+                <button id="cancel-add" class="btn-secondary">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 一键通过确认模态框 -->
+    <div id="approve-all-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>一键通过确认</h3>
+            <p>您确定要通过所有待审核的语句吗？此操作将批量通过 <span id="pending-count">0</span> 条待审核语句。</p>
+            <div class="modal-actions">
+                <button id="confirm-approve-all" class="btn-primary" style="background: #28a745;">确认通过</button>
+                <button id="cancel-approve-all" class="btn-secondary">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

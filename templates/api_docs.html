@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API文档 - 神人语录</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .api-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+
+        .endpoint {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .method {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+
+        .method-get {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .url {
+            font-family: 'Courier New', monospace;
+            color: #007bff;
+        }
+
+        .response-example {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔗 API 文档</h1>
+            <p>神人语录 API - 获取随机语句数据</p>
+        </header>
+
+        <main>
+            <div class="api-section">
+                <h2>📖 接口概述</h2>
+                <p>神人语录 API 提供了获取随机语句的接口，支持多种格式和数量的数据获取。</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>🔄 随机获取</h3>
+                        <p>每次请求返回不同的随机语句</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>📊 批量获取</h3>
+                        <p>支持一次获取多条语句</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>🎯 署名信息</h3>
+                        <p>返回语句作者信息</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>📈 使用统计</h3>
+                        <p>实时统计API调用次数</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="api-section">
+                <h2>🚀 快速开始</h2>
+
+                <h3>获取单个随机语句</h3>
+                <div class="endpoint">
+                    <span class="method method-get">GET</span>
+                    <span class="url">/api/random</span>
+                </div>
+
+                <div class="code-block">// JavaScript 示例
+fetch('/api/random')
+    .then(response => response.json())
+    .then(data => {
+        console.log('语句:', data.sentence);
+        console.log('作者:', data.author);
+    });
+
+// Python 示例
+import requests
+response = requests.get('http://8.148.85.152/api/random')
+data = response.json()
+print(f"语句: {data['sentence']}")
+print(f"作者: {data['author']}")</div>
+
+                <div class="response-example">
+                    <strong>响应示例:</strong>
+                    <pre>{
+  "sentence": "生活就像一盒巧克力，你永远不知道下一颗是什么味道。",
+  "author": "阿甘正传"
+}</pre>
+                </div>
+            </div>
+
+            <div class="api-section">
+                <h2>📚 API 端点</h2>
+
+                <h3>1. 获取单个随机语句</h3>
+                <div class="endpoint">
+                    <span class="method method-get">GET</span>
+                    <span class="url">/api/random</span>
+                </div>
+                <p>返回一个随机的审核通过的语句。</p>
+
+                <h3>2. 获取多个随机语句</h3>
+                <div class="endpoint">
+                    <span class="method method-get">GET</span>
+                    <span class="url">/api/random/&lt;count&gt;</span>
+                </div>
+                <p>返回指定数量的随机语句（最多50条）。</p>
+
+                <div class="code-block">// 获取5条随机语句
+fetch('/api/random/5')
+    .then(response => response.json())
+    .then(data => {
+        data.sentences.forEach(item => {
+            console.log(item.content, '-', item.author);
+        });
+    });</div>
+
+                <div class="response-example">
+                    <strong>响应示例:</strong>
+                    <pre>{
+  "count": 5,
+  "sentences": [
+    {
+      "content": "语句内容1",
+      "author": "上传者1"
+    },
+    {
+      "content": "语句内容2",
+      "author": "上传者2"
+    }
+  ]
+}</pre>
+                </div>
+
+                <h3>3. 获取统计数据</h3>
+                <div class="endpoint">
+                    <span class="method method-get">GET</span>
+                    <span class="url">/api/stats</span>
+                </div>
+                <p>返回网站和API的使用统计数据。</p>
+            </div>
+
+            <div class="api-section">
+                <h2>⚡ 使用示例</h2>
+
+                <h3>在网页中显示随机语句</h3>
+                <div class="code-block">&lt;div id="random-quote"&gt;&lt;/div&gt;
+&lt;button onclick="loadRandomQuote()"&gt;获取语录&lt;/button&gt;
+
+&lt;script&gt;
+async function loadRandomQuote() {
+    try {
+        const response = await fetch('/api/random');
+        const data = await response.json();
+
+        const quoteElement = document.getElementById('random-quote');
+        quoteElement.innerHTML = `
+            &lt;blockquote&gt;
+                ${data.sentence}
+                &lt;footer&gt;— ${data.author}&lt;/footer&gt;
+            &lt;/blockquote&gt;
+        `;
+    } catch (error) {
+        console.error('获取语录失败:', error);
+    }
+}
+
+// 页面加载时自动获取
+loadRandomQuote();
+&lt;/script&gt;</div>
+
+                <h3>定时刷新语句</h3>
+                <div class="code-block">// 每30秒自动刷新一次语句
+setInterval(loadRandomQuote, 30000);</div>
+            </div>
+        </main>
+
+        <footer>
+            <a href="{{ url_for('index') }}" class="nav-link">← 返回首页</a>
+        </footer>
+    </div>
+
+    <script>
+        // 加载统计信息
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+
+                document.getElementById('api-total-sentences').textContent = data.total_sentences;
+                document.getElementById('api-today-views').textContent = data.today_views;
+                document.getElementById('api-today-calls').textContent = data.today_api_calls;
+            } catch (error) {
+                console.error('加载统计信息失败:', error);
+            }
+        }
+
+        // 页面加载时获取统计信息
+        loadStats();
+    </script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提交新语句</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 提交神人语录</h1>
+            <p>分享您的剪贴板，丰富搬史的内容</p>
+        </header>
+
+        <main>
+            {% if success %}
+            <div class="success-message">
+                ✅ 提交成功！等待管理员审核。
+            </div>
+            {% endif %}
+
+            {% if errors %}
+            <div class="error-message">
+                {% for error in errors %}
+                <div>❌ {{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="POST" class="submit-form">
+                <div class="form-group">
+                    <label for="content">您的神人语录：</label>
+                    <textarea
+                        id="content"
+                        name="content"
+                        rows="8"
+                        placeholder="请输入您想要分享的神人语录、发癫文案（最多2000字）..."
+                        required
+                        maxlength="2000"
+                    >{% if request.method == 'POST' and not success %}{{ request.form.get('content', '') }}{% endif %}</textarea>
+                    <div class="char-count">
+                        <span id="char-counter">
+                            {% if request.method == 'POST' and not success %}
+                                {{ request.form.get('content', '')|length }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </span> / 2000 字符
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="author">署名（选填）：</label>
+                    <input
+                        type="text"
+                        id="author"
+                        name="author"
+                        placeholder="请输入您的署名，留空将显示为'匿名'（最多50字）"
+                        maxlength="50"
+                        value="{% if request.method == 'POST' %}{{ request.form.get('author', '') }}{% endif %}"
+                    >
+                    <div class="char-count">
+                        <span id="author-counter">
+                            {% if request.method == 'POST' %}
+                                {{ request.form.get('author', '')|length }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </span> / 50 字符
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">提交审核</button>
+                    <a href="{{ url_for('index') }}" class="btn-secondary">返回首页</a>
+                </div>
+            </form>
+
+            <div class="guidelines">
+                <h3>📋 提交指南</h3>
+                <ul>
+                    <li>内容应足够神人</li>
+                    <li>考虑平台兼容性，尽量使用emoji，不要带有平台特有占位符</li>
+                    <li>个人网站，请勿重复提交，请勿攻击</li>
+                    <li>提交后需经管理员审核方可展示</li>
+                </ul>
+            </div>
+        </main>
+
+        <footer>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">← 返回首页</a>
+                <a href="{{ url_for('leaderboard') }}" class="nav-link">🏆 排行榜</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const contentTextarea = document.getElementById('content');
+        const authorInput = document.getElementById('author');
+        const contentCounter = document.getElementById('char-counter');
+        const authorCounter = document.getElementById('author-counter');
+
+        // 初始化字符计数器
+        contentCounter.textContent = contentTextarea.value.length;
+        authorCounter.textContent = authorInput.value.length;
+
+        contentTextarea.addEventListener('input', function() {
+            contentCounter.textContent = this.value.length;
+        });
+
+        authorInput.addEventListener('input', function() {
+            authorCounter.textContent = this.value.length;
+        });
+
+        // 表单提交前验证
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const content = contentTextarea.value.trim();
+            const author = authorInput.value.trim();
+
+            if (content.length === 0) {
+                e.preventDefault();
+                alert('请输入语句内容');
+                return;
+            }
+
+            if (content.length > 2000) {
+                e.preventDefault();
+                alert('语句内容不能超过2000字');
+                return;
+            }
+
+            if (author.length > 50) {
+                e.preventDefault();
+                alert('署名不能超过50字');
+                return;
+            }
+        });
+    </script>
+</body>
+</html>
