@@ -5,6 +5,7 @@ import os
 import random
 from datetime import datetime, date
 import hashlib
+import re
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here-change-in-production'
@@ -12,6 +13,18 @@ CORS(app)
 
 # 管理员密码
 ADMIN_PASSWORD = "your-password-here"
+
+# 默认关键词配置
+DEFAULT_KEYWORDS = {
+    'error': [
+        {'keyword': '攻击性词汇1', 'message': '包含禁止的攻击性内容'},
+        {'keyword': '攻击性词汇2', 'message': '包含不适当的内容'}
+    ],
+    'warning': [
+        {'keyword': '敏感词1', 'message': '可能包含敏感内容，请确认'},
+        {'keyword': '敏感词2', 'message': '可能需要进一步审核'}
+    ]
+}
 
 
 # 数据库初始化
@@ -53,6 +66,17 @@ def init_db():
         )
     ''')
 
+    # 创建关键词表
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS keywords (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            keyword TEXT NOT NULL,
+            type TEXT NOT NULL,  -- 'error' or 'warning'
+            message TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
     # 插入示例数据
     c.execute("SELECT COUNT(*) FROM sentences WHERE status='approved'")
     if c.fetchone()[0] == 0:
@@ -71,6 +95,14 @@ def init_db():
             content_hash = hashlib.md5(content.strip().encode('utf-8')).hexdigest()
             c.execute("INSERT INTO sentences (content, author, status, content_hash) VALUES (?, ?, 'approved', ?)",
                       (content, author, content_hash))
+
+    # 插入默认关键词
+    c.execute("SELECT COUNT(*) FROM keywords")
+    if c.fetchone()[0] == 0:
+        for keyword_type, keywords in DEFAULT_KEYWORDS.items():
+            for item in keywords:
+                c.execute("INSERT INTO keywords (keyword, type, message) VALUES (?, ?, ?)",
+                          (item['keyword'], keyword_type, item['message']))
 
     conn.commit()
     conn.close()
@@ -117,6 +149,34 @@ def check_duplicate(content):
     return count > 0
 
 
+def check_keywords(content):
+    """检查内容中的关键词"""
+    conn = sqlite3.connect('sentences.db')
+    c = conn.cursor()
+
+    c.execute("SELECT keyword, type, message FROM keywords")
+    keywords = c.fetchall()
+    conn.close()
+
+    errors = []
+    warnings = []
+
+    for keyword, keyword_type, message in keywords:
+        # 使用正则表达式进行匹配（忽略大小写）
+        if re.search(re.escape(keyword), content, re.IGNORECASE):
+            if keyword_type == 'error':
+                errors.append({'keyword': keyword, 'message': message})
+            else:  # warning
+                warnings.append({'keyword': keyword, 'message': message})
+
+    return {
+        'has_errors': len(errors) > 0,
+        'has_warnings': len(warnings) > 0,
+        'errors': errors,
+        'warnings': warnings
+    }
+
+
 @app.route('/')
 def index():
     """首页 - 显示随机语句"""
@@ -161,6 +221,37 @@ def get_multiple_random_sentences(count):
     conn = sqlite3.connect('sentences.db')
     c = conn.cursor()
     c.execute("SELECT content, author FROM sentences WHERE status='approved' ORDER BY RANDOM() LIMIT ?", (count,))
+    results = c.fetchall()
+    conn.close()
+
+    sentences = []
+    for content, author in results:
+        sentences.append({
+            'content': content,
+            'author': author
+        })
+
+    return jsonify({
+        'count': len(sentences),
+        'sentences': sentences
+    })
+
+
+@app.route('/api/search')
+def search_sentences():
+    """搜索语句"""
+    keyword = request.args.get('keyword', '').strip()
+    if not keyword:
+        return jsonify({'sentences': []})
+
+    conn = sqlite3.connect('sentences.db')
+    c = conn.cursor()
+
+    # 使用LIKE进行模糊搜索
+    search_pattern = f'%{keyword}%'
+    c.execute(
+        "SELECT content, author FROM sentences WHERE status='approved' AND content LIKE ? ORDER BY RANDOM() LIMIT 20",
+        (search_pattern,))
     results = c.fetchall()
     conn.close()
 
@@ -236,6 +327,12 @@ def submit_sentence():
         if content and check_duplicate(content):
             errors.append('该语句已存在，请勿重复提交')
 
+        # 检查关键词
+        keyword_check = check_keywords(content)
+        if keyword_check['has_errors']:
+            error_keywords = [item['keyword'] for item in keyword_check['errors']]
+            errors.append(f'内容包含禁止关键词: {", ".join(error_keywords)}')
+
         if not errors:
             # 处理作者信息
             if not author:
@@ -259,6 +356,16 @@ def submit_sentence():
         return render_template('submit.html', success=False, errors=errors)
 
     return render_template('submit.html', success=False, errors=[])
+
+
+@app.route('/api/check-keywords', methods=['POST'])
+def api_check_keywords():
+    """API接口：检查关键词"""
+    data = request.json
+    content = data.get('content', '')
+
+    result = check_keywords(content)
+    return jsonify(result)
 
 
 @app.route('/admin/login', methods=['POST'])
@@ -504,6 +611,88 @@ def approve_all_pending():
         'success': True,
         'approved_count': pending_count
     })
+
+
+# 关键词管理API
+@app.route('/api/admin/keywords')
+def get_keywords():
+    """获取关键词列表"""
+    if not session.get('admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = sqlite3.connect('sentences.db')
+    c = conn.cursor()
+
+    c.execute("SELECT id, keyword, type, message FROM keywords ORDER BY type, keyword")
+    keywords = c.fetchall()
+    conn.close()
+
+    result = {
+        'error': [],
+        'warning': []
+    }
+
+    for id, keyword, keyword_type, message in keywords:
+        result[keyword_type].append({
+            'id': id,
+            'keyword': keyword,
+            'message': message
+        })
+
+    return jsonify(result)
+
+
+@app.route('/api/admin/keywords/add', methods=['POST'])
+def add_keyword():
+    """添加关键词"""
+    if not session.get('admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.json
+    keyword = data.get('keyword', '').strip()
+    keyword_type = data.get('type', 'warning')
+    message = data.get('message', '').strip()
+
+    if not keyword:
+        return jsonify({'success': False, 'error': '关键词不能为空'})
+
+    conn = sqlite3.connect('sentences.db')
+    c = conn.cursor()
+
+    try:
+        c.execute("INSERT INTO keywords (keyword, type, message) VALUES (?, ?, ?)",
+                  (keyword, keyword_type, message))
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.close()
+        return jsonify({'success': False, 'error': str(e)})
+
+
+@app.route('/api/admin/keywords/delete', methods=['POST'])
+def delete_keyword():
+    """删除关键词"""
+    if not session.get('admin'):
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.json
+    keyword_id = data.get('id')
+
+    if not keyword_id:
+        return jsonify({'success': False, 'error': '缺少关键词ID'})
+
+    conn = sqlite3.connect('sentences.db')
+    c = conn.cursor()
+
+    try:
+        c.execute("DELETE FROM keywords WHERE id = ?", (keyword_id,))
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.close()
+        return jsonify({'success': False, 'error': str(e)})
 
 
 if __name__ == '__main__':

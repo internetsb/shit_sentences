@@ -672,3 +672,152 @@ footer {
         font-size: 1em;
     }
 }
+
+/* 警告消息样式 */
+.warning-message {
+    background: #fff3cd;
+    color: #856404;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ffeaa7;
+}
+
+.warning-message h4 {
+    margin-bottom: 10px;
+    color: #856404;
+}
+
+/* 搜索结果显示 */
+.search-results {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e1e8ed;
+    border-radius: 10px;
+    background: white;
+}
+
+.search-result-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.search-result-item:hover {
+    background-color: #f8f9fa;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.no-results, .loading, .no-data {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+}
+
+/* 管理后台标签页样式 */
+.admin-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e1e8ed;
+}
+
+.tab-btn {
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
+}
+
+.tab-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+    font-weight: bold;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* 关键词管理样式 */
+.keywords-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.keyword-category {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.keyword-category h4 {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.keywords-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* 批量复制进度条 */
+.batch-progress {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e1e8ed;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .keywords-section {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .admin-tabs {
+        flex-direction: column;
+    }
+
+    .tab-btn {
+        text-align: center;
+        border-bottom: 1px solid #e1e8ed;
+        border-right: none;
+    }
+
+    .search-section, .batch-copy-section {
+        padding: 20px;
+    }
+}
+
+/* 表单选择框样式 */
+select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e1e8ed;
+    border-radius: 10px;
+    font-size: 1em;
+    background: white;
+    margin-bottom: 15px;
+}
+
+select:focus {
+    outline: none;
+    border-color: #667eea;
+}

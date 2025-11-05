@@ -25,6 +25,37 @@
                 </div>
             </div>
 
+            <!-- 关键词搜索功能 -->
+            <div class="search-section" style="background: white; border-radius: 20px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); margin-bottom: 20px; width: 100%; max-width: 600px;">
+                <h3 style="margin-bottom: 15px; text-align: center;">🔍 关键词搜索</h3>
+                <div class="search-form">
+                    <input type="text" id="search-keyword" placeholder="输入关键词搜索语句..." style="width: 100%; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 10px; font-size: 1em; margin-bottom: 10px;">
+                    <button id="search-btn" class="btn-primary" style="width: 100%;">搜索</button>
+                </div>
+                <div id="search-results" class="search-results" style="margin-top: 15px; max-height: 300px; overflow-y: auto;"></div>
+            </div>
+
+            <!-- 批量复制功能 -->
+            <div class="batch-copy-section" style="background: white; border-radius: 20px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); margin-bottom: 30px; width: 100%; max-width: 600px;">
+                <h3 style="margin-bottom: 15px; text-align: center;">📋 批量复制</h3>
+                <div class="batch-form">
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                        <input type="number" id="batch-count" min="1" max="50" value="5" placeholder="数量 (1-50)" style="flex: 1; padding: 12px 15px; border: 2px solid #e1e8ed; border-radius: 10px; font-size: 1em;">
+                        <button id="batch-copy-btn" class="btn-primary">开始批量复制</button>
+                    </div>
+                    <div id="batch-progress" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>进度: <span id="batch-current">0</span>/<span id="batch-total">0</span></span>
+                            <span id="batch-percentage">0%</span>
+                        </div>
+                        <div style="background: #f0f0f0; border-radius: 10px; height: 10px;">
+                            <div id="batch-progress-bar" style="background: #667eea; height: 100%; border-radius: 10px; width: 0%; transition: width 0.3s ease;"></div>
+                        </div>
+                        <button id="batch-cancel-btn" class="btn-secondary" style="margin-top: 10px; width: 100%;">取消批量复制</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="stats">
                 <div class="stat-item">
                     <span id="total-count">-</span>

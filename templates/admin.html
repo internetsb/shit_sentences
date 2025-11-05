@@ -27,24 +27,59 @@
 
             <!-- 管理界面 -->
             <div id="admin-section" class="admin-section" style="display: none;">
-                <div class="admin-header">
-                    <div class="filter-tabs">
-                        <button class="filter-btn active" data-status="all">全部</button>
-                        <button class="filter-btn" data-status="pending">待审核</button>
-                        <button class="filter-btn" data-status="approved">已通过</button>
-                        <button class="filter-btn" data-status="rejected">已拒绝</button>
+                <div class="admin-tabs">
+                    <button class="tab-btn active" data-tab="sentences">语句管理</button>
+                    <button class="tab-btn" data-tab="keywords">关键词管理</button>
+                </div>
+
+                <!-- 语句管理标签页 -->
+                <div id="sentences-tab" class="tab-content active">
+                    <div class="admin-header">
+                        <div class="filter-tabs">
+                            <button class="filter-btn active" data-status="all">全部</button>
+                            <button class="filter-btn" data-status="pending">待审核</button>
+                            <button class="filter-btn" data-status="approved">已通过</button>
+                            <button class="filter-btn" data-status="rejected">已拒绝</button>
+                        </div>
+
+                        <div class="admin-actions">
+                            <button id="add-sentence-btn" class="btn-primary">添加语句</button>
+                            <button id="approve-all-btn" class="btn-primary" style="background: #28a745;">一键通过</button>
+                            <button id="refresh-btn" class="btn-secondary">刷新</button>
+                            <button id="logout-btn" class="btn-secondary">退出登录</button>
+                        </div>
                     </div>
 
-                    <div class="admin-actions">
-                        <button id="add-sentence-btn" class="btn-primary">添加语句</button>
-                        <button id="approve-all-btn" class="btn-primary" style="background: #28a745;">一键通过</button>
-                        <button id="refresh-btn" class="btn-secondary">刷新</button>
-                        <button id="logout-btn" class="btn-secondary">退出登录</button>
+                    <div id="sentences-list" class="sentences-list">
+                        <div class="sentence-item">请先登录查看语句列表</div>
                     </div>
                 </div>
 
-                <div id="sentences-list" class="sentences-list">
-                    <div class="sentence-item">请先登录查看语句列表</div>
+                <!-- 关键词管理标签页 -->
+                <div id="keywords-tab" class="tab-content">
+                    <div class="admin-header">
+                        <h3>关键词管理</h3>
+                        <div class="admin-actions">
+                            <button id="add-keyword-btn" class="btn-primary">添加关键词</button>
+                            <button id="refresh-keywords-btn" class="btn-secondary">刷新</button>
+                        </div>
+                    </div>
+
+                    <div class="keywords-section">
+                        <div class="keyword-category">
+                            <h4>❌ 禁止关键词 (Error)</h4>
+                            <div id="error-keywords-list" class="keywords-list">
+                                <div class="loading">加载中...</div>
+                            </div>
+                        </div>
+
+                        <div class="keyword-category">
+                            <h4>⚠️ 警告关键词 (Warning)</h4>
+                            <div id="warning-keywords-list" class="keywords-list">
+                                <div class="loading">加载中...</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -74,6 +109,32 @@
             <div class="modal-actions">
                 <button id="confirm-approve-all" class="btn-primary" style="background: #28a745;">确认通过</button>
                 <button id="cancel-approve-all" class="btn-secondary">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加关键词模态框 -->
+    <div id="add-keyword-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>添加关键词</h3>
+            <div class="form-group">
+                <label for="new-keyword">关键词：</label>
+                <input type="text" id="new-keyword" placeholder="请输入关键词">
+            </div>
+            <div class="form-group">
+                <label for="keyword-type">类型：</label>
+                <select id="keyword-type">
+                    <option value="error">禁止 (Error)</option>
+                    <option value="warning">警告 (Warning)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="keyword-message">提示消息：</label>
+                <input type="text" id="keyword-message" placeholder="检测到关键词时的提示消息">
+            </div>
+            <div class="modal-actions">
+                <button id="confirm-add-keyword" class="btn-primary">确认添加</button>
+                <button id="cancel-add-keyword" class="btn-secondary">取消</button>
             </div>
         </div>
     </div>
